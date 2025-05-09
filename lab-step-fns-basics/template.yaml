@@ -1,0 +1,37 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+
+Resources:
+  HelloWorldStateMachine:
+    Type: AWS::Serverless::StateMachine
+    Properties:
+      DefinitionUri: statemachine/hello-world.asl.json
+      Policies:
+        - AWSLambdaBasicExecutionRole
+      Name: HelloWorldStateMachine
+
+  CalculatorLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: calculator
+      Runtime: nodejs22.x
+      Handler: app.lambdaHandler
+      CodeUri: functions/calculator/
+      MemorySize: 128
+      Timeout: 3
+      Policies:
+        - AWSLambdaBasicExecutionRole
+
+  CalculatorStateMachine:
+    Type: AWS::Serverless::StateMachine
+    Properties:
+      DefinitionUri: statemachine/calculator.asl.yaml
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - lambda:InvokeFunction
+              Resource: !GetAtt CalculatorLambda.Arn
+      Name: CalculatorStateMachine
+      DefinitionSubstitutions:
+        CalculatorLambdaArn: !GetAtt CalculatorLambda.Arn

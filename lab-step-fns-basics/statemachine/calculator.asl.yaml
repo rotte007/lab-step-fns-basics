@@ -1,0 +1,12 @@
+StartAt: calculate
+States:
+  calculate:
+    Type: Task
+    Resource: arn:aws:states:::lambda:invoke
+    InputPath: $.lambda
+    ResultPath: $.lambda.lambdaResult
+    OutputPath: $.lambda
+    Parameters:
+      Payload.$: $
+      FunctionName: ${CalculatorLambdaArn}
+    End: true
